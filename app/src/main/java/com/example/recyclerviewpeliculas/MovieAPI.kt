@@ -1,60 +1,53 @@
 package com.example.recyclerviewpeliculas
+
 import android.util.Log
 import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.awaitResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MovieAPI {
-    val imageSrc : String = "";
-    public fun makeApiCall(): List<Movie>? {
-        var movieList1 : List<Movie> = listOf();
-        val call: Call<MovieList> = RetrofitInstance.movieApiService.getMovieDetails(APIKEY)
-        call.enqueue(object : Callback<MovieList> {
-            override fun onResponse(call: Call<MovieList>, response: Response<MovieList>) {
-                if (response.isSuccessful) {
-                    val movieList  : MovieList? = response.body();
-                    if (movieList != null) {
-                        movieList1 = movieList.movies;
-                        Log.d("movies", movieList1.toString())
-                        Log.d("Movies2", movieList.movies.toString())
-                    }
-                } else {
-                }
-            }
-            override fun onFailure(call: Call<MovieList>, t: Throwable) {
-                // Handle failure
-            }
 
-        })
-        Log.d("movie3", movieList1.toString())
-        return movieList1 ;
+    private val apiKey = "3c1118671c82dcb670201bee008e026c"
+
+    suspend fun makeApiCall(page: Int): List<Movie>? = withContext(Dispatchers.IO) {
+        try {
+            // Update the URL to include the page parameter
+            val call: Call<MovieList> = RetrofitInstance.movieApiService.getMovieDetails(apiKey, page)
+            val response = call.awaitResponse()
+
+            if (response.isSuccessful) {
+                val movieList: MovieList? = response.body()
+                return@withContext movieList?.movies
+            } else {
+                // Handle unsuccessful response
+                Log.e("Hola", "Unsuccessful response: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            // Handle exception
+            Log.e("Hola", "Error during API call: ${e.message}", e)
         }
+        return@withContext null
+    }
 }
 
-const val APIKEY = "3c1118671c82dcb670201bee008e026c"
-const val apiUrl = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1";
 interface ApiService {
-    @GET("movie/top_rated?language=en-US&page=1")
+    @GET("movie/top_rated?language=en-US")
     fun getMovieDetails(
-        @Query("api_key") apiKey: String
+        @Query("api_key") apiKey: String,
+        @Query("page") page: Int
     ): Call<MovieList>
 }
 
-public data class MovieList(
+data class MovieList(
     @SerializedName("results")
-    public val movies: List<Movie>,
-){
-
-}
-
-
-
+    val movies: List<Movie>,
+)
 
 data class Movie(
     @SerializedName("id")
@@ -70,9 +63,8 @@ data class Movie(
     // Add other attributes as needed
 )
 
-object RetrofitInstance{
+object RetrofitInstance {
     private const val APIURL = "https://api.themoviedb.org/3/"
-    private const val APIKEY = "3c1118671c82dcb670201bee008e026c"
 
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(APIURL)
@@ -81,5 +73,3 @@ object RetrofitInstance{
 
     val movieApiService: ApiService = retrofit.create(ApiService::class.java)
 }
-
-
