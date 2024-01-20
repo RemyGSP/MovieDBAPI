@@ -10,6 +10,7 @@ import retrofit2.http.Query
 import retrofit2.awaitResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 class MovieAPI {
 
@@ -48,7 +49,6 @@ data class MovieList(
     @SerializedName("results")
     val movies: List<Movie>,
 )
-
 data class Movie(
     @SerializedName("id")
     val id: Int,
@@ -61,7 +61,8 @@ data class Movie(
     @SerializedName("poster_path")
     val imageUrl: String
     // Add other attributes as needed
-)
+) : Serializable
+
 
 object RetrofitInstance {
     private const val APIURL = "https://api.themoviedb.org/3/"

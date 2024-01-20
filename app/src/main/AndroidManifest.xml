@@ -16,12 +16,16 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.android.settings.battery.action.PERIODIC_JOB_RECHECK"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.example.recyclerviewpeliculas.DetallesPelicula">
+            <!-- Add any necessary intent filters or other configurations here -->
         </activity>
     </application>
 

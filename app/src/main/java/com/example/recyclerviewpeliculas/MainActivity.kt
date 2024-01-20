@@ -18,11 +18,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewPeliculas)
         peliculasAdapter = PeliculasAdapter(emptyList())
         recyclerView.adapter = peliculasAdapter
-        // Initialize RecyclerView and set layout manager
-        loadApiOnRecyclerView(1)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+
+        // Load the initial data
+        addDataToAdapter(counter)
+
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -42,12 +46,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             try {
                 val movies: List<Movie>? = movieApi.makeApiCall(counter);
-                // Check for null before creating the adapter
+                // Check for null before updating the adapter
                 if (movies != null) {
-                    // Ensure that the context is not null
-                    peliculasAdapter = PeliculasAdapter(movies)
+                    // Update the existing adapter with new data
                     peliculasAdapter.addData(movies)
-
                 } else {
                     // Handle the case where movies is null (e.g., API call failed)
                     Log.e("NotAmogus", "Failed to fetch movies")

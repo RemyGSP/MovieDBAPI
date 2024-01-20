@@ -1,27 +1,31 @@
 package com.example.recyclerviewpeliculas
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.squareup.picasso.Picasso
 import coil.load
+import java.io.Serializable
 
 class PeliculasAdapter(private val FilmList : List<Movie>) : RecyclerView.Adapter<PeliculasAdapter.ViewHolder>() {
 
-    lateinit var context: Context;
-    var allMovies : MutableList<Movie> = mutableListOf();
+    var allMovies: MutableList<Movie> = FilmList.toMutableList()
 
     fun addData(newMovies: List<Movie>) {
         val startPosition = allMovies.size
         allMovies.addAll(newMovies)
         Log.d("Movies23",allMovies.toString())
         notifyItemRangeInserted(startPosition, newMovies.size)
+        notifyDataSetChanged()
+
     }
 
 
@@ -31,10 +35,24 @@ class PeliculasAdapter(private val FilmList : List<Movie>) : RecyclerView.Adapte
         var image: ImageView = itemView.findViewById(R.id.imagenPelicula)
         var ratings: TextView = itemView.findViewById(R.id.ratingsTextView)
 
-    };
+        init {
+            itemView.setOnClickListener {
+                // Handle item click here
+                val position = adapterPosition
+                    val clickedMovie = allMovies[position]
+
+                    val newScreen = Intent(itemView.context, DetallesPelicula::class.java)
+                    newScreen.putExtra("clickedMovie", clickedMovie as Serializable)
+
+
+                itemView.context.startActivity(newScreen)
+
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val context = parent?.context;
+        val context = parent.context
         val inflater = LayoutInflater.from(context);
         val filmView = inflater.inflate(R.layout.layoutrecyclerview,parent,false);
         return ViewHolder(filmView)
